@@ -57,10 +57,12 @@ sys_sbrk(void)
 
   if(argint(0, &n) < 0)
     return -1;
+  if(n <= 0)
+	  return -1;
   //cprintf("n is %x\n", n);
   addr = myproc()->sz;
   //cprintf("old addr :%x\n", addr);
-  myproc()->vsz += n;
+  myproc()->vsz += PGROUNDUP(n);
   /*
   if(growproc(n) < 0) {
 	  cprintf("n is : %lu sbrk error!\n", n);
