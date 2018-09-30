@@ -1,0 +1,2 @@
+dup lock error
+dup2 should change lock logic
