@@ -49,8 +49,6 @@ exec(char *path, char **argv)
       goto bad;
     if(ph.vaddr + ph.memsz < ph.vaddr)
       goto bad;
-	cprintf("ph.vaddr:%x\n", ph.vaddr);
-	cprintf("ph.memsze:%x\n", ph.memsz);
 	if(sz == 0) {
 		sz = ph.vaddr;
 		curproc->pgstart = ph.vaddr;
@@ -103,6 +101,7 @@ exec(char *path, char **argv)
   oldpgdir = curproc->pgdir;
   curproc->pgdir = pgdir;
   curproc->sz = sz;
+  curproc->vsz = sz;
   curproc->tf->eip = elf.entry;  // main
   curproc->tf->esp = sp;
   switchuvm(curproc);

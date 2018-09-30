@@ -81,8 +81,11 @@ trap(struct trapframe *tf)
   //PAGEBREAK: 13
 
   case T_PGFLT:
-	cprintf("PAGE FALUT\n");
-	goto COM;
+	//cprintf("PAGE FALUT\n");
+	if(lazyload(tf, rcr2()) < 0)
+		goto COM;
+	//cprintf("ok!\n");
+	break;
   case T_TSS:
   case T_SEGNP:
   case T_GPFLT:

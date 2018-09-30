@@ -1,0 +1,54 @@
+syscall.c:  if(addr >= curproc->sz || addr+4 > curproc->sz)
+syscall.c:  if(addr >= curproc->sz)
+syscall.c:  ep = (char*)curproc->sz;
+syscall.c:  if(size < 0 || (uint)i >= curproc->sz || (uint)i+size > curproc->sz)
+proc.c:  p->sz = PGSIZE;
+proc.c:  sz = curproc->sz;
+proc.c:  curproc->sz = sz;
+proc.c:  if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
+proc.c:  np->sz = curproc->sz;
+proc.c:  np->vsz = np->sz;
+exec.c:  curproc->sz = sz;
+kernel.asm:  curproc->sz = sz;
+kernel.asm:  p->sz = PGSIZE;
+kernel.asm:  sz = curproc->sz;
+kernel.asm:  curproc->sz = sz;
+kernel.asm:  if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
+kernel.asm:  np->sz = curproc->sz;
+kernel.asm:  if(addr >= curproc->sz || addr+4 > curproc->sz)
+kernel.asm:  if(addr >= curproc->sz)
+kernel.asm:  ep = (char*)curproc->sz;
+kernel.asm:  if(size < 0 || (uint)i >= curproc->sz || (uint)i+size > curproc->sz)
+kernel.asm:  addr = myproc()->sz;
+kernel.asm:  myproc()->sz += n;
+kernel.asm:  cprintf("new addr :%x\n", myproc()->sz);
+grep:syscall.c:  if(addr >= curproc->sz || addr+4 > curproc->sz)
+grep:syscall.c:  if(addr >= curproc->sz)
+grep:syscall.c:  ep = (char*)curproc->sz;
+grep:syscall.c:  if(size < 0 || (uint)i >= curproc->sz || (uint)i+size > curproc->sz)
+grep:proc.c:  p->sz = PGSIZE;
+grep:proc.c:  sz = curproc->sz;
+grep:proc.c:  curproc->sz = sz;
+grep:proc.c:  if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
+grep:proc.c:  np->sz = curproc->sz;
+grep:proc.c:  np->vsz = np->sz;
+grep:exec.c:  curproc->sz = sz;
+grep:kernel.asm:  curproc->sz = sz;
+grep:kernel.asm:  p->sz = PGSIZE;
+grep:kernel.asm:  sz = curproc->sz;
+grep:kernel.asm:  curproc->sz = sz;
+grep:kernel.asm:  if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
+grep:kernel.asm:  np->sz = curproc->sz;
+grep:kernel.asm:  if(addr >= curproc->sz || addr+4 > curproc->sz)
+grep:kernel.asm:  if(addr >= curproc->sz)
+grep:kernel.asm:  ep = (char*)curproc->sz;
+grep:kernel.asm:  if(size < 0 || (uint)i >= curproc->sz || (uint)i+size > curproc->sz)
+grep:kernel.asm:  addr = myproc()->sz;
+grep:kernel.asm:  myproc()->sz += n;
+grep:kernel.asm:  cprintf("new addr :%x\n", myproc()->sz);
+grep:sysproc.c:  addr = myproc()->sz;
+grep:sysproc.c:  cprintf("new addr :%x\n", myproc()->sz);
+grep:sysproc.c:  if(faultaddr <= current->pgstart || faultaddr >= current->sz)
+sysproc.c:  addr = myproc()->sz;
+sysproc.c:  cprintf("new addr :%x\n", myproc()->sz);
+sysproc.c:  if(faultaddr <= current->pgstart || faultaddr >= current->sz)

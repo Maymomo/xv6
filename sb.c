@@ -26,16 +26,22 @@ void show(void *p)
 char *s = "sbrk(1)\n";
 int main(int arg, char **argv)
 {
-	char *p = 0;
+	//char *p = 0;
 	write(1, s, strlen(s));
 	char *val = sbrk(4096*2);
-	printf(1, "%p\n", val);
-	val++;
-	*val = 1;
-	show(val);
-	show((void *)0x4000);
+	printf(1, "%p\n", val+1);
+
+	if(fork() == 0) {
+	//val++;
+	  gets(val, 4096);
+	  printf(1, "%s", val);
+	  exit();
+	}
+	wait();
+	//show(val);
+	//show((void *)0x4000);
 	for(int i = 0; i < 4096; i++) {
-		*p = 2;
+		//*p = 2;
 	}
 	exit();
 }

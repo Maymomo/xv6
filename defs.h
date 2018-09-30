@@ -9,6 +9,7 @@ struct spinlock;
 struct sleeplock;
 struct stat;
 struct superblock;
+struct trapframe;
 
 // bio.c
 void            binit(void);
@@ -186,5 +187,8 @@ void            switchkvm(void);
 int             copyout(pde_t*, uint, void*, uint);
 void            clearpteu(pde_t *pgdir, char *uva);
 void			userspteinit();
-// number of elements in fixed-size array
+
+// page lazy load
+int lazyload(struct trapframe *tf, uint trapaddr);
+//number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))

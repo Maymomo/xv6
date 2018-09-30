@@ -57,17 +57,17 @@ sys_sbrk(void)
 
   if(argint(0, &n) < 0)
     return -1;
-  cprintf("n is %x\n", n);
+  //cprintf("n is %x\n", n);
   addr = myproc()->sz;
-  cprintf("old addr :%x\n", addr);
-  myproc()->sz += n;
+  //cprintf("old addr :%x\n", addr);
+  myproc()->vsz += n;
   /*
   if(growproc(n) < 0) {
 	  cprintf("n is : %lu sbrk error!\n", n);
     return -1;
   }
   */
-  cprintf("new addr :%x\n", myproc()->sz);
+  //cprintf("new addr :%x\n", myproc()->sz);
   return addr;
 }
 
@@ -103,4 +103,33 @@ sys_uptime(void)
   xticks = ticks;
   release(&tickslock);
   return xticks;
+}
+
+int
+lazyload(struct trapframe *tf, uint faultaddr)
+{
+  struct proc *current = myproc();
+  uint va = PGROUNDDOWN(faultaddr);
+  uint vsz = current->vsz;
+  //cprintf("lazyloading %p\n", faultaddr);
+  if(current == 0) {
+   cprintf("unexpected trap %d from cpu %d eip %x (cr2=0x%x)\n",
+		  tf->trapno, cpuid(), tf->eip, rcr2());
+   panic("trap");
+  }
+
+  if(faultaddr <= current->pgstart || faultaddr >= vsz)
+	  return -1;
+  va = va + PGSIZE > vsz ? vsz : va + PGSIZE;
+  if(growproc(va - current->sz) < 0) {
+	myproc()->killed = 1;
+	return -1;
+  }
+  current->sz = va;
+// In user space, assume process misbehaved.
+  //cprintf("pid %d %s: trap %d err %d on cpu %d "
+//		"eip 0x%x addr 0x%x--kill proc\n",
+ // myproc()->pid, myproc()->name, tf->trapno,
+//		tf->err, cpuid(), tf->eip, rcr2());
+	return 0;
 }

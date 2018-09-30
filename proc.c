@@ -130,6 +130,7 @@ userinit(void)
     panic("userinit: out of memory?");
   inituvm(p->pgdir, _binary_initcode_start, (int)_binary_initcode_size);
   p->sz = PGSIZE;
+  p->vsz = PGSIZE;
   memset(p->tf, 0, sizeof(*p->tf));
   p->tf->cs = (SEG_UCODE << 3) | DPL_USER;
   p->tf->ds = (SEG_UDATA << 3) | DPL_USER;
@@ -197,6 +198,8 @@ fork(void)
     return -1;
   }
   np->sz = curproc->sz;
+  np->vsz = curproc->vsz;
+  np->pgstart = curproc->pgstart;
   np->parent = curproc;
   *np->tf = *curproc->tf;
 
