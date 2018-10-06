@@ -161,9 +161,9 @@ void userspteinit()
 	}
 //	syspage = spgdir[PDX(P2V(SYSPAGE))];
 	//install syspage
-	cprintf("%x\n", SYSPAGE);
+	//cprintf("%x\n", SYSPAGE);
 	mem = kalloc();
-	cprintf("%x\n", mem);
+	//cprintf("%x\n", mem);
 	syscodes = (struct syscode *)mem;
 	if(mappages(spgdir, (void *)SYSPAGE, PGSIZE, V2P(mem), PTE_U|PTE_W) < 0) {
 		panic("init syscall page erro!");
