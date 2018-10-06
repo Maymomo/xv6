@@ -25,6 +25,7 @@ int sleep(int);
 int uptime(void);
 int may(void);
 int dup2(int filed, int filed2);
+int alarm(uint ticks, void (*handler)(void));
 // ulib.c
 int stat(const char*, struct stat*);
 char* strcpy(char*, const char*);

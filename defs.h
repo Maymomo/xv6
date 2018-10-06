@@ -1,3 +1,5 @@
+#ifndef _TYPE_H
+#define _TYPE_H
 struct buf;
 struct context;
 struct file;
@@ -186,9 +188,25 @@ void            switchuvm(struct proc*);
 void            switchkvm(void);
 int             copyout(pde_t*, uint, void*, uint);
 void            clearpteu(pde_t *pgdir, char *uva);
+
 void			userspteinit();
 
+typedef void (*alarm_handler)(void);
+void		    set_alarm(struct proc *p, int ticks, alarm_handler handler);
+void			alarmwhen(uint ticks);
+
+void		   	do_alarm(struct proc *p);
+void			lock_ptable();
+void		    unlock_ptable();
+void	 		cli_lock_ptable();
+void			uncli_unlock_ptable();
 // page lazy load
 int lazyload(struct trapframe *tf, uint trapaddr);
+struct syscode {
+	uint code1;
+	uint code2;
+};
+struct syscode *syscodes;
 //number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))
+#endif

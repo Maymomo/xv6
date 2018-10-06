@@ -6,6 +6,7 @@
 #include "mmu.h"
 #include "proc.h"
 #include "elf.h"
+#include "syscall.h"
 
 extern char data[];  // defined by kernel.ld
 pde_t *kpgdir;  // for use in scheduler()
@@ -120,7 +121,7 @@ static struct kmap {
 } kmap[] = {
  { (void*)KERNBASE, 0,             EXTMEM,    PTE_W}, // I/O space
  { (void*)KERNLINK, V2P(KERNLINK), V2P(data), 0},     // kern text+rodata
- { (void*)data,     V2P(data),     PHYSTOP,   PTE_W}, // kern data+memory
+ { (void*)data,     V2P(data),		PHYSTOP,   PTE_W}, // kern data+memory
  { (void*)DEVSPACE, DEVSPACE,      0,         PTE_W}, // more devices
 };
 
@@ -130,9 +131,16 @@ static struct kmap {
 // Set up kernel part of a page table.
 
 static pde_t *spgdir = 0;
+const uint code1 = 0xb8;
+const uint code2 = 0xc340cd00;
+
 void userspteinit()
 {
 	struct kmap *k;
+	void *mem;
+	//pde_t *syspde;
+	//pte_t *syspte;
+	//int *sys_num;
 	if (P2V(PHYSTOP) > (void *)DEVSPACE)
 		panic("PHYSTOP too high");
 
@@ -151,6 +159,20 @@ void userspteinit()
 		if (mappages(spgdir, k->virt, k->phys_end - k->phys_start, (uint)k->phys_start, k->perm) < 0)
 			panic("mappages error!");
 	}
+//	syspage = spgdir[PDX(P2V(SYSPAGE))];
+	//install syspage
+	cprintf("%x\n", SYSPAGE);
+	mem = kalloc();
+	cprintf("%x\n", mem);
+	syscodes = (struct syscode *)mem;
+	if(mappages(spgdir, (void *)SYSPAGE, PGSIZE, V2P(mem), PTE_U|PTE_W) < 0) {
+		panic("init syscall page erro!");
+	}
+	for(uint i = 1; i <= SYSCOUNTS; i++) {
+		syscodes[i-1].code1 = code1 | (i << 8 & 0xffffff00);
+		syscodes[i-1].code2 = code2 |	(i >> 24 & 0xff);
+	}
+	syscodes = (struct syscode *)SYSPAGE;
 }
 
 
@@ -159,11 +181,13 @@ pde_t*
 setupkvm(void)
 {
   pde_t *pgdir;
-  struct kmap *k;
+  //struct kmap *k;
+  if(spgdir == 0)
+	  userspteinit();
   if((pgdir = (pde_t*)kalloc()) == 0)
     return 0;
-  memset(pgdir, 0, PGSIZE);
-  //memmove(pgdir, spgdir, PGSIZE);
+  memmove(pgdir, spgdir, PGSIZE);
+  /*
   if (P2V(PHYSTOP) > (void*)DEVSPACE)
     panic("PHYSTOP too high");
   for(k = kmap; k < &kmap[NELEM(kmap)]; k++)
@@ -173,6 +197,7 @@ setupkvm(void)
       freevm(pgdir);
       return 0;
     }
+  */
   return pgdir;
 }
 
@@ -265,7 +290,7 @@ allocuvm(pde_t *pgdir, uint oldsz, uint newsz)
   char *mem;
   uint a;
 
-  if(newsz >= KERNBASE)
+  if(newsz >= SYSPAGE)
     return 0;
   if(newsz < oldsz)
     return oldsz;
@@ -328,8 +353,8 @@ freevm(pde_t *pgdir)
 
   if(pgdir == 0)
     panic("freevm: no pgdir");
-  deallocuvm(pgdir, KERNBASE, 0);
-  for(i = 0; i < NPDENTRIES / 2; i++){
+  deallocuvm(pgdir, SYSPAGE, 0);
+  for(i = 0; i < NPDENTRIES / 2 - 1; i++){
     if(pgdir[i] & PTE_P){
       char * v = P2V(PTE_ADDR(pgdir[i]));
       kfree(v);

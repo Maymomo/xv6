@@ -10,13 +10,15 @@
 
 int sys_may(void)
 {
-	cprintf("Maymomo!\n");
+	for(int i = 0; i < 10000000; i++);
+	  //cprintf("%esp: %x\n", myproc()->tf);
 	return 0;
 }
 
 int
 sys_fork(void)
 {
+  //cprintf("%d\n", cpuid());
   return fork();
 }
 
@@ -62,7 +64,10 @@ sys_sbrk(void)
   //cprintf("n is %x\n", n);
   addr = myproc()->sz;
   //cprintf("old addr :%x\n", addr);
-  myproc()->vsz += PGROUNDUP(n);
+  n = PGROUNDUP(n);
+  if(n + myproc()->vsz >= KERNBASE)
+	  return -1;
+  myproc()->vsz += n;
   /*
   if(growproc(n) < 0) {
 	  cprintf("n is : %lu sbrk error!\n", n);

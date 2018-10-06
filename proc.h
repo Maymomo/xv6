@@ -1,3 +1,5 @@
+#include "x86.h"
+#include "alarm.h"
 // Per-CPU state
 struct cpu {
   uchar apicid;                // Local APIC ID
@@ -33,6 +35,7 @@ struct context {
 };
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
+enum pflags { P_ALARM};
 
 // Per-process state
 struct proc {
@@ -51,6 +54,8 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+  struct alarm_struct  alarm;
+  int flags;
 };
 
 // Process memory is laid out contiguously, low addresses first:
@@ -58,3 +63,4 @@ struct proc {
 //   original data and bss
 //   fixed-size stack
 //   expandable heap
+

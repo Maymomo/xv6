@@ -106,6 +106,8 @@ extern int sys_write(void);
 extern int sys_uptime(void);
 extern int sys_may(void);
 extern int sys_dup2(void);
+extern int sys_alarm(void);
+extern int sys_alarm_ret(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -131,6 +133,8 @@ static int (*syscalls[])(void) = {
 [SYS_close]   sys_close,
 [SYS_may]	  sys_may,
 [SYS_dup2]	  sys_dup2,
+[SYS_alarm]	  sys_alarm,
+[SYS_alarm_ret]   sys_alarm_ret,
 };
 /*
 static char *sys_call_name[] = {

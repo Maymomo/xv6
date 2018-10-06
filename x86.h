@@ -1,5 +1,6 @@
 // Routines to let C code use special x86 instructions.
-
+#ifndef _X86_H
+#define _X86_H
 static inline uchar
 inb(ushort port)
 {
@@ -148,7 +149,7 @@ lcr3(uint val)
 // Layout of the trap frame built on the stack by the
 // hardware and by trapasm.S, and passed to trap().
 struct trapframe {
-  // registers as pushed by pusha
+  // registers as pushed by pushal
   uint edi;
   uint esi;
   uint ebp;
@@ -181,3 +182,18 @@ struct trapframe {
   ushort ss;
   ushort padding6;
 };
+
+struct user_context {
+  uint eflags;
+  uint eip;
+  uint esp;
+  uint edi;
+  uint esi;
+  uint ebp;
+  uint oesp;
+  uint ebx;
+  uint edx;
+  uint ecx;
+  uint eax;
+};
+#endif

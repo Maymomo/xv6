@@ -30,18 +30,19 @@ int main(int arg, char **argv)
 	write(1, s, strlen(s));
 	char *val = sbrk(4096*2);
 	printf(1, "%p\n", val+1);
-
-	if(fork() == 0) {
+	int pid;
+	may();
+	if((pid = fork()) == 0) {
 	//val++;
-	  gets(val, 4096);
-	  printf(1, "%s", val);
+	  for(int i = 0; i < 4096; i++)
+		 printf(1, "%d\n", 0);
 	  exit();
+	} else {
+		for(int i = 0; i < 4096; i++) {
+			printf(1, "%d\n", pid);
+		}
 	}
-	wait();
 	//show(val);
 	//show((void *)0x4000);
-	for(int i = 0; i < 4096; i++) {
-		//*p = 2;
-	}
 	exit();
 }

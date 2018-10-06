@@ -31,3 +31,4 @@ SYSCALL(sleep)
 SYSCALL(uptime)
 SYSCALL(may);
 SYSCALL(dup2)
+SYSCALL(alarm)

@@ -35,8 +35,10 @@ exec(char *path, char **argv)
   if(elf.magic != ELF_MAGIC)
     goto bad;
 
-  if((pgdir = setupkvm()) == 0)
+  if((pgdir = setupkvm()) == 0) {
+	cprintf("J\n");
     goto bad;
+  }
 
   // Load program into memory.
   sz = 0;

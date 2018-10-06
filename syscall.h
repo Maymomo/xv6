@@ -1,4 +1,5 @@
 // System call numbers
+#define SYSCOUNTS   26
 #define SYS_fork    1
 #define SYS_exit    2
 #define SYS_wait    3
@@ -22,3 +23,5 @@
 #define SYS_close  21
 #define SYS_may	   22
 #define SYS_dup2   23
+#define SYS_alarm  24
+#define SYS_alarm_ret 25

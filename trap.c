@@ -37,21 +37,23 @@ void
 trap(struct trapframe *tf)
 {
   if(tf->trapno == T_SYSCALL){
-    if(myproc()->killed)
+	struct proc *p = myproc();
+    if(p->killed)
       exit();
-    myproc()->tf = tf;
+    p->tf = tf;
     syscall();
     if(myproc()->killed)
       exit();
-    return;
+	goto return_to_user_mode;
   }
-
   switch(tf->trapno){
   case T_IRQ0 + IRQ_TIMER:
+	//cprintf("cpu %d esp %x myproc: %x\n", cpuid(), tf, myproc());
     if(cpuid() == 0){
       acquire(&tickslock);
       ticks++;
       wakeup(&ticks);
+	  alarmwhen(ticks);
       release(&tickslock);
     }
     lapiceoi();
@@ -83,15 +85,14 @@ trap(struct trapframe *tf)
   case T_PGFLT:
 	//cprintf("PAGE FALUT\n");
 	if(lazyload(tf, rcr2()) < 0)
-		goto COM;
-	//cprintf("ok!\n");
+		goto error;
 	break;
   case T_TSS:
   case T_SEGNP:
   case T_GPFLT:
-COM:
+	//cprintf("GPFLT\n");
   default:
-	cprintf("%x\n", tf->trapno);
+	//cprintf("%x\n", tf->trapno);
     if(myproc() == 0 || (tf->cs&3) == 0){
       // In kernel, it must be our mistake.
       cprintf("unexpected trap %d from cpu %d eip %x (cr2=0x%x)\n",
@@ -99,14 +100,21 @@ COM:
       panic("trap");
     }
     // In user space, assume process misbehaved.
-	cprintf("here!\n");
+	//cprintf("here!\n");
     cprintf("pid %d %s: trap %d err %d on cpu %d "
             "eip 0x%x addr 0x%x--kill proc\n",
             myproc()->pid, myproc()->name, tf->trapno,
             tf->err, cpuid(), tf->eip, rcr2());
     myproc()->killed = 1;
+	goto error;
   }
-
+return_to_user_mode:
+  if((tf->cs&3) == 0)
+	  return;
+  do_alarm(myproc());
+  // just deal with alarm
+  return;
+error:
   // Force process exit if it has been killed and is in user space.
   // (If it is still executing in the kernel, let it keep running
   // until it gets to the regular system call return.)

@@ -89,6 +89,10 @@ found:
   p->state = EMBRYO;
   p->pid = nextpid++;
   p->pgstart = 0;
+  p->alarm.count = 0;
+  p->alarm.last = 0;
+  p->alarm.ticks = 0;
+  p->alarm.handler = 0;
   release(&ptable.lock);
 
   // Allocate kernel stack.
@@ -534,4 +538,77 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+void
+alarmwhen(uint ticks)
+{
+
+  struct proc *p;
+  if(readeflags()&FL_IF)
+    panic("alarmwhen with interrupts enabled\n");
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p != &ptable.proc[NPROC]; p++) {
+	  if(p->state == UNUSED || p->state == ZOMBIE || p->state == EMBRYO)
+		  continue;
+	  if(p->killed == 1)
+		  continue;
+	  if(p->alarm.handler == 0)
+		  continue;
+	  if(p->alarm.last== 0) {
+		  p->alarm.last = ticks;
+		  continue;
+	  }
+	  else if(ticks - p->alarm.last < p->alarm.ticks)
+		  continue;
+	  p->alarm.last = ticks;
+	  if(p->state == SLEEPING)
+		  p->state = RUNNABLE;
+	  p->alarm.count++;
+  }
+  release(&ptable.lock);
+}
+
+
+void
+set_alarm(struct proc *p, int ticks, alarm_handler handler)
+{
+	//pushcli();
+    //acquire(&ptable.lock);
+	cli_lock_ptable();
+	p->alarm.ticks = ticks;
+	p->alarm.handler = handler;
+	p->alarm.count = 0;
+	p->alarm.last = 0;
+	p->alarm.alarmed = 0;
+	uncli_unlock_ptable();
+	//release(&ptable.lock);
+	//popcli();
+}
+
+
+void
+lock_ptable()
+{
+    acquire(&ptable.lock);
+}
+
+void
+unlock_ptable()
+{
+	release(&ptable.lock);
+}
+
+void
+cli_lock_ptable()
+{
+	pushcli();
+    acquire(&ptable.lock);
+}
+
+void
+uncli_unlock_ptable()
+{
+	release(&ptable.lock);
+	popcli();
 }
